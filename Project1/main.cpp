@@ -1,6 +1,9 @@
 #include <iostream>
+#include <string>
+#include "Hashtable.h"
 
 int main() {
-	std::cout << "Goodby" << std::endl;
+	Hashtable hashtable;
+	std::cout << hashtable.m_table[0].name << std::endl;
 	return 0;
 }
