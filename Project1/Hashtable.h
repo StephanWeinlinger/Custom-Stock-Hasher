@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 
-typedef struct Date {
+typedef struct Date { // string would probably be better
 	short int year;
 	short int month;
 	short int day;
@@ -20,11 +20,11 @@ typedef struct Data {
 
 typedef struct Stock {
 	Stock()
-		: filled(false), deleted(false) {} // to remove error
+		: filled(false), deleted(false), isin(0) {}
 	bool filled;
 	bool deleted;
 	std::string name;
-	std::string wkn;
+	int isin;
 	std::string abbreviation;
 	std::vector<Data> History;
 } Stock;
@@ -34,4 +34,6 @@ public:
 	Hashtable();
 	~Hashtable();
 	Stock* m_table; // atleast 2000, 2003 is first prime number over 2000
+	int hash(std::string abbreviation);
+	void add(int hash, Stock stock);
 };

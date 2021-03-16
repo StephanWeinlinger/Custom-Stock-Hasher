@@ -18,34 +18,48 @@ void Controller::printMenu() {
 }
 
 void Controller::run() {
-	printMenu();
-	short int input;
-	std::cin >> input;
-	switch(input) {
-		case 1:
-			//add();
-			break;
-		case 2:
-			//del();
-			break;
-		case 3:
-			//import();
-			break;
-		case 4:
-			//search();
-			break;
-		case 5:
-			//plot();
-			break;
-		case 6:
-			//save();
-			break;
-		case 7:
-			//load();
-			break;
-		case 8:
-			m_quit = true;
-			break;
+	while(!m_quit) {
+		printMenu();
+		short int input;
+		std::cin >> input;
+		switch(input) {
+			case 1:
+				add();
+				break;
+			case 2:
+				//del();
+				break;
+			case 3:
+				//import();
+				break;
+			case 4:
+				//search();
+				break;
+			case 5:
+				//plot();
+				break;
+			case 6:
+				//save();
+				break;
+			case 7:
+				//load();
+				break;
+			case 8:
+				m_quit = true;
+				break;
+		}
 	}
 }
 
+void Controller::add() {
+	Stock stock;
+	std::cout << "Name: " << std::endl;
+	std::cin >> stock.name;
+	std::cout << "ISIN: " << std::endl;
+	std::cin >> stock.isin;
+	std::cout << "Abbreviation: " << std::endl;
+	std::cin >> stock.abbreviation;
+	stock.filled = true;
+	int hash = m_hashtable.hash(stock.abbreviation);
+	m_hashtable.add(hash, stock);
+}

@@ -7,3 +7,11 @@ Hashtable::Hashtable() {
 Hashtable::~Hashtable() {
 	delete[] m_table;
 }
+
+int Hashtable::hash(std::string abbreviation) {
+
+}
+
+void Hashtable::add(int hash, Stock stock) {
+
+}
