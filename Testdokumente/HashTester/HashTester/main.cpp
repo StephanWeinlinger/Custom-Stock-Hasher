@@ -47,10 +47,20 @@ std::vector<std::vector<std::string>> readFileFromCSV() {
 	return data;
 }
 
+
 int hash(std::string abbreviation) {
-	
-	
-	return value;
+	uint64_t value = 1;
+	uint64_t power_result = 1;
+	uint64_t base = 2004;
+	for(int i = 0; i < (int) abbreviation.length(); ++i) {
+		/*for(int j = 0; j < (int) abbreviation.length() - i - 1; ++j) {
+			power_result *= base;
+		}*/
+		//value = value + (((int)abbreviation[i]) * power_result);
+		value *= (int)abbreviation[i];
+	}
+
+	return value % 2003;
 }
 
 int main() {
@@ -67,6 +77,7 @@ int main() {
 	}
 
 	destination.close();
+
 
 	/* Printer
 	for(std::vector<std::vector<std::string>>::iterator it1 = data.begin(); it1 != data.end(); ++it1) {
