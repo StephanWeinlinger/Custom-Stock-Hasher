@@ -30,7 +30,7 @@ void Controller::run() {
 				//del();
 				break;
 			case 3:
-				//import();
+				import();
 				break;
 			case 4:
 				//search();
@@ -62,4 +62,12 @@ void Controller::add() {
 	stock.filled = true;
 	int index = m_hashtable.hash(stock.abbreviation);
 	m_hashtable.add(index, stock, 0);
+}
+
+void Controller::import() {
+	std::string abbreviation;
+	std::cout << "Abbreviation: ";
+	std::cin >> abbreviation;
+	//int index = m_hashtable.search(abbreviation)
+	m_hashtable.import(999); // replace with index
 }

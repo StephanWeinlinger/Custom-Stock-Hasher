@@ -10,4 +10,5 @@ private:
 	void run();
 	void printMenu();
 	void add();
+	void import();
 };
