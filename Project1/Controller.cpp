@@ -53,13 +53,13 @@ void Controller::run() {
 
 void Controller::add() {
 	Stock stock;
-	std::cout << "Name: " << std::endl;
+	std::cout << "Name: ";
 	std::cin >> stock.name;
-	std::cout << "ISIN: " << std::endl;
+	std::cout << "ISIN: ";
 	std::cin >> stock.isin;
-	std::cout << "Abbreviation: " << std::endl;
+	std::cout << "Abbreviation: ";
 	std::cin >> stock.abbreviation;
 	stock.filled = true;
-	int hash = m_hashtable.hash(stock.abbreviation);
-	m_hashtable.add(hash, stock);
+	int index = m_hashtable.hash(stock.abbreviation);
+	m_hashtable.add(index, stock, 0);
 }
