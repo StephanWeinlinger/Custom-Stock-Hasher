@@ -11,4 +11,6 @@ private:
 	void printMenu();
 	void add();
 	void import();
+	void save();
+	void load();
 };

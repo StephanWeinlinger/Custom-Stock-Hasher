@@ -39,10 +39,10 @@ void Controller::run() {
 				//plot();
 				break;
 			case 6:
-				//save();
+				save();
 				break;
 			case 7:
-				//load();
+				load();
 				break;
 			case 8:
 				m_quit = true;
@@ -51,7 +51,7 @@ void Controller::run() {
 	}
 }
 
-void Controller::add() {
+void Controller::add() { // deleted gets set to false (constructor)
 	Stock stock;
 	std::cout << "Name: ";
 	std::cin >> stock.name;
@@ -70,4 +70,24 @@ void Controller::import() {
 	std::cin >> abbreviation;
 	//int index = m_hashtable.search(abbreviation)
 	m_hashtable.import(999); // replace with index
+}
+
+void Controller::save() {
+	std::cout << "Saving in process..." << std::endl;
+	if(m_hashtable.save()) {
+		std::cout << "Saving completed! Hashtable and dictonary files created!" << std::endl;
+	}
+	else {
+		std::cout << "Error: Couldn't save hashtable or dictionary (maybe file is opened)" << std::endl;
+	}
+}
+
+void Controller::load() {
+	std::cout << "Loading in process..." << std::endl;
+	if(m_hashtable.load()) {
+		std::cout << "Loading completed! Hashtable and dictonary created!" << std::endl;
+	}
+	else {
+		std::cout << "Error: Couldn't load hashtable or dictionary (maybe file is opened)" << std::endl;
+	}
 }

@@ -14,7 +14,8 @@ typedef struct Data {
 	unsigned long long int m_volume; // could be reduced, is pretty big
 } Data;
 
-typedef struct Stock {
+typedef class Stock {
+public:
 	Stock()
 		: filled(false), deleted(false), isin(0) {}
 	bool filled;
@@ -33,4 +34,6 @@ public:
 	int hash(std::string abbreviation);
 	void add(uint32_t index, Stock stock, uint32_t qu_pr);
 	void import(int index);
+	bool save();
+	bool load();
 };

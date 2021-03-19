@@ -53,11 +53,11 @@ int hash(std::string abbreviation) {
 	uint64_t power_result = 1;
 	uint64_t base = 2004;
 	for(int i = 0; i < (int) abbreviation.length(); ++i) {
-		/*for(int j = 0; j < (int) abbreviation.length() - i - 1; ++j) {
+		for(int j = 0; j < (int) abbreviation.length() - i - 1; ++j) {
 			power_result *= base;
-		}*/
-		//value = value + (((int)abbreviation[i]) * power_result);
-		value *= (int)abbreviation[i];
+		}
+		value = value + (((int)abbreviation[i]) * power_result);
+		//value *= (int)abbreviation[i];
 	}
 
 	return value % 2003;

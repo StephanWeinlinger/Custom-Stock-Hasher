@@ -52,10 +52,76 @@ void Hashtable::import(int index) {
 	}
 
 	// absolutely horrendous, but it works
+	m_table[index].history.clear(); // if new import happens
 	for(int i = line_count - 30; i < line_count; ++i) {
 		Data data(history_tmp[i][0], std::stod(history_tmp[i][1]), std::stod(history_tmp[i][2]), std::stod(history_tmp[i][3]), std::stod(history_tmp[i][4]), std::stod(history_tmp[i][5]), std::stoull(history_tmp[i][6]));
 		m_table[index].history.emplace_back(data);
 	}
 
 	source.close();
+}
+
+bool Hashtable::save() {
+	std::ofstream destination("./../save/save.csv", std::ios::trunc);
+	if(!destination.is_open()) {
+		return false;
+	}
+
+	for(int i = 0; i < 2003; ++i) {
+		if(m_table[i].deleted) {
+			destination << i << "\n"; // only index indicates deleted stock
+		}
+		else if(m_table[i].filled) {
+			destination << i << "," << m_table[i].name << "," << m_table[i].isin << "," << m_table[i].abbreviation;
+			if(!m_table[i].history.empty()) {
+				for(std::vector<Data>::iterator it = m_table[i].history.begin(); it != m_table[i].history.end(); ++it) {
+					destination << "," << it->m_date << "," << it->m_open << "," << it->m_high << "," << it->m_low << "," << it->m_close << "," << it->m_adjclose << "," << it->m_volume;
+				}
+			}
+			destination << "\n";
+		}
+		// rest is completely empty
+	}
+
+	destination.close();
+	return true;
+}
+
+bool Hashtable::load() {
+	std::fstream source;
+	source.open("./../save/save.csv");
+	if(!source.is_open()) {
+		return false;
+	}
+	// clears complete table
+	delete[] m_table;
+	m_table = new Stock[2003];
+
+	std::string line;
+	while(std::getline(source, line)) {
+		std::string line_value;
+		std::vector<std::string> line_values;
+		std::stringstream ss(line);
+		while(std::getline(ss, line_value, ',')) {
+			line_values.push_back(line_value);
+		}
+		short int index = stoi(line_values[0]);
+		if(line_values.size() == 2) {
+			m_table[index].deleted = true;
+			continue;
+		}
+		m_table[index].filled = true;
+		m_table[index].name = line_values[1];
+		m_table[index].isin = stoi(line_values[2]);
+		m_table[index].abbreviation = line_values[3];
+		if(line_values.size() > 4) {
+			for(std::vector<std::string>::iterator it = std::next(line_values.begin(), 4); it != line_values.end(); it = it + 7) {
+				Data data(*it, std::stod(*(it + 1)), std::stod(*(it + 2)), std::stod(*(it + 3)), std::stod(*(it + 4)), std::stod(*(it + 5)), std::stoull(*(it + 6)));
+				m_table[index].history.emplace_back(data);
+			}
+		}
+	}
+
+	source.close();
+	return true;
 }
