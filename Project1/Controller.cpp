@@ -72,26 +72,24 @@ void Controller::add() { // deleted gets set to false (constructor)
 
 int Controller::decision() {
 	short int type;
-	char tmp[40];
 	std::string input;
 	std::cout << "Abbreviation or Name [0 or 1]: ";
 	std::cin >> type;
-	if(type == 0) {
+	if (type == 0) {
 		std::cout << "Abbreviation: ";
 	}
 	else {
-		std::cout << "Name (max. 40 characters): ";
-		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-		std::cin.getline(tmp, 40);
-		input = tmp;
+		std::cout << "Name: ";
 	}
 	std::cin >> input;
-	if(type == 1) {
-		//int indexEntry = m_hashtable.hash(input);
-		//input = m_hashtable.m_dictionary[m_hashtable.searchEntry(indexEntry, input)];
-	} // add searchEntry and searchStock
-	//int indexStock = m_hashtable.hash(input);
-	//return m_hashtable.searchStock(indexStock, input);
+	if (type == 1) {
+		int indexEntry = m_hashtable.hash(input);
+		input = m_hashtable.m_dictionary[m_hashtable.searchEntry(indexEntry, input, 0)].m_abbreviation;
+	}
+
+	int indexStock = m_hashtable.hash(input);
+	return m_hashtable.searchStock(indexStock, input, 0);
+
 	return 0;
 }
 
@@ -123,4 +121,17 @@ void Controller::load() {
 void Controller::plot() {
 	int index = 999;
 
+}
+
+void Controller::search()
+{
+	int index = decision();
+	m_hashtable.printstock(index);
+
+};
+
+void Controller::delete_stock()
+{
+	int index = decision();
+	m_hashtable.del_stock(index);
 }

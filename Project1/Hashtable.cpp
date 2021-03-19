@@ -138,3 +138,52 @@ bool Hashtable::load() {
 	source.close();
 	return true;
 }
+
+int Hashtable::searchEntry(int indexEntry, std::string input, uint32_t qu_pr)
+{
+	//m_table[index].history[29].m_close;  
+	// einzeln auf elementne zur ausgabe aufrufen
+
+	uint32_t index_tmp = (indexEntry + qu_pr * qu_pr) % 2003;
+	if ((m_dictionary[index_tmp].m_name != input && !m_dictionary[index_tmp].m_name.empty()) || m_dictionary[index_tmp].m_deleted) {
+		searchEntry(index_tmp, input, qu_pr);
+	}
+	else if (m_dictionary[index_tmp].m_name != input) {
+		return -1;
+	}
+	return index_tmp;
+};
+
+int Hashtable::searchStock(int indexStock, std::string input, uint32_t qu_pr)
+{
+	uint32_t index_tmp = (indexStock + qu_pr * qu_pr) % 2003;
+	if ((m_table[index_tmp].abbreviation != input && !m_table[index_tmp].abbreviation.empty()) || m_table[index_tmp].deleted) {
+		searchStock(index_tmp, input, qu_pr);
+	}
+	else if (m_table[index_tmp].abbreviation != input) {
+		return -1;
+	}
+	return index_tmp;
+};
+void::Hashtable::del_stock(uint64_t index)
+{
+	m_table[index].name.clear();
+	m_table[index].abbreviation.clear();
+	m_table[index].isin = 0;
+	m_table[index].filled = false;
+	m_table[index].deleted = true;
+	m_table[index].history.clear();
+
+	std::cout << "Stock has been deleted!" << std::endl;
+};
+
+void Hashtable::printstock(uint64_t index)
+{
+	std::cout << "Date: " << m_table[index].history[29].m_date << std::endl;
+	std::cout << "Open: " << m_table[index].history[29].m_open << std::endl;
+	std::cout << "High: " << m_table[index].history[29].m_high << std::endl;
+	std::cout << "Low: " << m_table[index].history[29].m_low << std::endl;
+	std::cout << "Close: " << m_table[index].history[29].m_close << std::endl;
+	std::cout << "Volume: " << m_table[index].history[29].m_volume << std::endl;
+	std::cout << "Adj_Close: " << m_table[index].history[29].m_adjclose << std::endl;
+};

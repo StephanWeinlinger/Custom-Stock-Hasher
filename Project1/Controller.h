@@ -15,4 +15,6 @@ private:
 	void save();
 	void load();
 	void plot();
+	void search();
+	void delete_stock();
 };
