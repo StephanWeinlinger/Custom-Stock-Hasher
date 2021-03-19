@@ -53,8 +53,11 @@ void Controller::run() {
 
 void Controller::add() { // deleted gets set to false (constructor)
 	Stock stock;
-	std::cout << "Name: ";
-	std::cin >> stock.name;
+	char tmp[41];
+	std::cout << "Name (max. 40 characters): ";
+	std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // everything until newline gets discarded
+	std::cin.getline(tmp, 40);
+	stock.name = tmp;
 	std::cout << "ISIN: ";
 	std::cin >> stock.isin;
 	std::cout << "Abbreviation: ";
@@ -64,11 +67,12 @@ void Controller::add() { // deleted gets set to false (constructor)
 	int indexEntry = m_hashtable.hash(stock.name);
 	m_hashtable.addStock(indexStock, stock, 0);
 	m_hashtable.addEntry(indexEntry, stock, 0);
-	std::cout << indexEntry << std::endl;
+	std::cout << stock.name << std::endl;
 }
 
 int Controller::decision() {
 	short int type;
+	char tmp[40];
 	std::string input;
 	std::cout << "Abbreviation or Name [0 or 1]: ";
 	std::cin >> type;
@@ -76,7 +80,10 @@ int Controller::decision() {
 		std::cout << "Abbreviation: ";
 	}
 	else {
-		std::cout << "Name: ";
+		std::cout << "Name (max. 40 characters): ";
+		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		std::cin.getline(tmp, 40);
+		input = tmp;
 	}
 	std::cin >> input;
 	if(type == 1) {
@@ -96,7 +103,7 @@ void Controller::import() {
 void Controller::save() {
 	std::cout << "Saving in process..." << std::endl;
 	if(m_hashtable.save()) {
-		std::cout << "Saving completed! Hashtable and dictonary files created!" << std::endl;
+		std::cout << "Saving completed! Hashtable and dictionary files created!" << std::endl;
 	}
 	else {
 		std::cout << "Error: Couldn't save hashtable or dictionary (maybe file is opened)" << std::endl;
@@ -106,7 +113,7 @@ void Controller::save() {
 void Controller::load() {
 	std::cout << "Loading in process..." << std::endl;
 	if(m_hashtable.load()) {
-		std::cout << "Loading completed! Hashtable and dictonary created!" << std::endl;
+		std::cout << "Loading completed! Hashtable and dictionary created!" << std::endl;
 	}
 	else {
 		std::cout << "Error: Couldn't load hashtable or dictionary (maybe file is opened)" << std::endl;

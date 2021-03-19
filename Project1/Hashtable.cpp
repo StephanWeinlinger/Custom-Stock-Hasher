@@ -20,7 +20,6 @@ int Hashtable::hash(std::string abbreviation) {
 	for(int i = 0; i < (int)abbreviation.length(); ++i) {
 		value *= (int)abbreviation[i];
 	}
-
 	return value % 2003;
 }
 
@@ -86,10 +85,10 @@ bool Hashtable::save() {
 			destination << i << "\n"; // only index indicates deleted stock
 		}
 		else if(m_table[i].filled) {
-			destination << i << ";" << m_table[i].name << ";" << m_table[i].isin << ";" << m_table[i].abbreviation;
+			destination << i << "," << m_table[i].name << "," << m_table[i].isin << "," << m_table[i].abbreviation;
 			if(!m_table[i].history.empty()) {
 				for(std::vector<Data>::iterator it = m_table[i].history.begin(); it != m_table[i].history.end(); ++it) {
-					destination << ";" << it->m_date << ";" << it->m_open << ";" << it->m_high << ";" << it->m_low << ";" << it->m_close << ";" << it->m_adjclose << ";" << it->m_volume;
+					destination << "," << it->m_date << "," << it->m_open << "," << it->m_high << "," << it->m_low << "," << it->m_close << "," << it->m_adjclose << "," << it->m_volume;
 				}
 			}
 			destination << "\n";
@@ -116,7 +115,7 @@ bool Hashtable::load() {
 		std::string line_value;
 		std::vector<std::string> line_values;
 		std::stringstream ss(line);
-		while(std::getline(ss, line_value, ';')) {
+		while(std::getline(ss, line_value, ',')) {
 			line_values.push_back(line_value);
 		}
 		short int index = stoi(line_values[0]);
