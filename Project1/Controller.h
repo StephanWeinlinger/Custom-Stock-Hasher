@@ -10,7 +10,9 @@ private:
 	void run();
 	void printMenu();
 	void add();
+	int decision();
 	void import();
 	void save();
 	void load();
+	void plot();
 };

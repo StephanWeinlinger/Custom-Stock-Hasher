@@ -36,7 +36,7 @@ void Controller::run() {
 				//search();
 				break;
 			case 5:
-				//plot();
+				plot();
 				break;
 			case 6:
 				save();
@@ -60,15 +60,36 @@ void Controller::add() { // deleted gets set to false (constructor)
 	std::cout << "Abbreviation: ";
 	std::cin >> stock.abbreviation;
 	stock.filled = true;
-	int index = m_hashtable.hash(stock.abbreviation);
-	m_hashtable.add(index, stock, 0);
+	int indexStock = m_hashtable.hash(stock.abbreviation);
+	int indexEntry = m_hashtable.hash(stock.name);
+	m_hashtable.addStock(indexStock, stock, 0);
+	m_hashtable.addEntry(indexEntry, stock, 0);
+	std::cout << indexEntry << std::endl;
+}
+
+int Controller::decision() {
+	short int type;
+	std::string input;
+	std::cout << "Abbreviation or Name [0 or 1]: ";
+	std::cin >> type;
+	if(type == 0) {
+		std::cout << "Abbreviation: ";
+	}
+	else {
+		std::cout << "Name: ";
+	}
+	std::cin >> input;
+	if(type == 1) {
+		//int indexEntry = m_hashtable.hash(input);
+		//input = m_hashtable.m_dictionary[m_hashtable.searchEntry(indexEntry, input)];
+	} // add searchEntry and searchStock
+	//int indexStock = m_hashtable.hash(input);
+	//return m_hashtable.searchStock(indexStock, input);
+	return 0;
 }
 
 void Controller::import() {
-	std::string abbreviation;
-	std::cout << "Abbreviation: ";
-	std::cin >> abbreviation;
-	//int index = m_hashtable.search(abbreviation)
+	int index = decision();
 	m_hashtable.import(999); // replace with index
 }
 
@@ -90,4 +111,9 @@ void Controller::load() {
 	else {
 		std::cout << "Error: Couldn't load hashtable or dictionary (maybe file is opened)" << std::endl;
 	}
+}
+
+void Controller::plot() {
+	int index = 999;
+
 }

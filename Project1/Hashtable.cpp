@@ -7,10 +7,12 @@
 
 Hashtable::Hashtable() {
 	m_table = new Stock[2003];
+	m_dictionary = new Entry[2003];
 }
 
 Hashtable::~Hashtable() {
 	delete[] m_table;
+	delete[] m_dictionary;
 }
 
 int Hashtable::hash(std::string abbreviation) {
@@ -22,14 +24,25 @@ int Hashtable::hash(std::string abbreviation) {
 	return value % 2003;
 }
 
-void Hashtable::add(uint32_t index, Stock stock, uint32_t qu_pr) {
+void Hashtable::addStock(uint32_t index, Stock stock, uint32_t qu_pr) {
 	uint32_t index_tmp = (index + qu_pr * qu_pr) % 2003;
 	if(!m_table[index_tmp].filled) { // if not filled
 		m_table[index_tmp] = stock;
 	}
 	else {
-		//std::cout << "Finding new place..." << std::endl;
-		add(index, stock, qu_pr + 1);
+		addStock(index, stock, qu_pr + 1);
+	}
+}
+
+void Hashtable::addEntry(uint32_t index, Stock stock, uint32_t qu_pr) {
+	uint32_t index_tmp = (index + qu_pr * qu_pr) % 2003;
+	if(m_dictionary[index_tmp].m_abbreviation == "") {
+		m_dictionary[index_tmp].m_deleted = false;
+		m_dictionary[index_tmp].m_name = stock.name;
+		m_dictionary[index_tmp].m_abbreviation = stock.abbreviation;
+	}
+	else {
+		addEntry(index, stock, qu_pr + 1);
 	}
 }
 
@@ -61,6 +74,7 @@ void Hashtable::import(int index) {
 	source.close();
 }
 
+// hashtable and dictionary get saved in save.csv (note that the entries are separated by semicolons, since some companies have "," in their name)
 bool Hashtable::save() {
 	std::ofstream destination("./../save/save.csv", std::ios::trunc);
 	if(!destination.is_open()) {
@@ -72,10 +86,10 @@ bool Hashtable::save() {
 			destination << i << "\n"; // only index indicates deleted stock
 		}
 		else if(m_table[i].filled) {
-			destination << i << "," << m_table[i].name << "," << m_table[i].isin << "," << m_table[i].abbreviation;
+			destination << i << ";" << m_table[i].name << ";" << m_table[i].isin << ";" << m_table[i].abbreviation;
 			if(!m_table[i].history.empty()) {
 				for(std::vector<Data>::iterator it = m_table[i].history.begin(); it != m_table[i].history.end(); ++it) {
-					destination << "," << it->m_date << "," << it->m_open << "," << it->m_high << "," << it->m_low << "," << it->m_close << "," << it->m_adjclose << "," << it->m_volume;
+					destination << ";" << it->m_date << ";" << it->m_open << ";" << it->m_high << ";" << it->m_low << ";" << it->m_close << ";" << it->m_adjclose << ";" << it->m_volume;
 				}
 			}
 			destination << "\n";
@@ -102,7 +116,7 @@ bool Hashtable::load() {
 		std::string line_value;
 		std::vector<std::string> line_values;
 		std::stringstream ss(line);
-		while(std::getline(ss, line_value, ',')) {
+		while(std::getline(ss, line_value, ';')) {
 			line_values.push_back(line_value);
 		}
 		short int index = stoi(line_values[0]);
