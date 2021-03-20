@@ -67,7 +67,6 @@ void Controller::add() { // deleted gets set to false (constructor)
 	int indexEntry = m_hashtable.hash(stock.name);
 	m_hashtable.addStock(indexStock, stock, 0);
 	m_hashtable.addEntry(indexEntry, indexStock, stock, 0);
-	std::cout << stock.name << std::endl;
 }
 
 int Controller::decision() {

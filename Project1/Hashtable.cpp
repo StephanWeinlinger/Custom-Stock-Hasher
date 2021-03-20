@@ -196,7 +196,6 @@ void Hashtable::searchStock(int& indexStock, std::string input, uint32_t qu_pr) 
 };
 
 void Hashtable::printStock(int index) {
-	std::cout << "Index: " << index << std::endl;
 	std::cout << "Name: " << m_table[index].name << std::endl;
 	std::cout << "ISIN: " << m_table[index].isin << std::endl;
 	std::cout << "Abbreviation: " << m_table[index].abbreviation << std::endl;
@@ -207,7 +206,7 @@ void Hashtable::printStock(int index) {
 		std::cout << "Low: " << m_table[index].history[29].m_low << std::endl;
 		std::cout << "Close: " << m_table[index].history[29].m_close << std::endl;
 		std::cout << "Volume: " << m_table[index].history[29].m_volume << std::endl;
-		std::cout << "Adj_Close: " << m_table[index].history[29].m_adjclose << std::endl;
+		std::cout << "Adjusted Close: " << m_table[index].history[29].m_adjclose << std::endl;
 	}
 };
 
