@@ -66,7 +66,7 @@ void Controller::add() { // deleted gets set to false (constructor)
 	int indexStock = m_hashtable.hash(stock.abbreviation);
 	int indexEntry = m_hashtable.hash(stock.name);
 	m_hashtable.addStock(indexStock, stock, 0);
-	m_hashtable.addEntry(indexEntry, stock, 0);
+	m_hashtable.addEntry(indexEntry, indexStock, stock, 0);
 	std::cout << stock.name << std::endl;
 }
 
@@ -92,7 +92,7 @@ int Controller::decision() {
 		if(indexEntry == -1) {
 			return indexEntry; // returns -1 if not found
 		}
-		input = m_hashtable.m_dictionary[indexEntry].m_abbreviation;
+		return m_hashtable.m_dictionary[indexEntry].m_indexStock;
 	}
 	int indexStock = m_hashtable.hash(input);
 	m_hashtable.searchStock(indexStock, input, 0); // returns -1 if not found
@@ -104,8 +104,11 @@ void Controller::import() {
 	if(index == -1) {
 		std::cout << "Stock not found!" << std::endl;
 	}
+	else if(m_hashtable.import(index)) {
+		std::cout << "Stock data imported!" << std::endl;
+	}
 	else {
-		m_hashtable.import(index);
+		std::cout << "Error: Couldn't import stock data (maybe file is opened or not existent)" << std::endl;
 	}
 }
 

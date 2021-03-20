@@ -4,10 +4,10 @@
 
 typedef struct Entry {
 	Entry() // only used for initial allocation
-	: m_deleted(false) {}
+	: m_deleted(false), m_indexStock(-1) {}
 	bool m_deleted;
 	std::string m_name;
-	std::string m_abbreviation;
+	int m_indexStock;
 } Entry;
 
 typedef struct Data {
@@ -41,8 +41,8 @@ public:
 	Entry* m_dictionary; 
 	int hash(std::string abbreviation);
 	void addStock(uint32_t index, Stock stock, uint32_t qu_pr);
-	void addEntry(uint32_t index, Stock stock, uint32_t qu_pr);
-	void import(int index);
+	void addEntry(uint32_t indexStock, uint32_t indexEntry, Stock stock, uint32_t qu_pr);
+	bool import(int index);
 	bool save();
 	bool load();
 	void searchEntry(int& indexEntry, std::string input, uint32_t qu_pr);

@@ -33,22 +33,25 @@ void Hashtable::addStock(uint32_t index, Stock stock, uint32_t qu_pr) {
 	}
 }
 
-void Hashtable::addEntry(uint32_t index, Stock stock, uint32_t qu_pr) {
-	uint32_t index_tmp = (index + qu_pr * qu_pr) % 2003;
-	if(m_dictionary[index_tmp].m_abbreviation == "") {
+void Hashtable::addEntry(uint32_t indexEntry, uint32_t indexStock, Stock stock, uint32_t qu_pr) {
+	uint32_t index_tmp = (indexEntry + qu_pr * qu_pr) % 2003;
+	if(m_dictionary[index_tmp].m_name == "") {
 		m_dictionary[index_tmp].m_deleted = false;
 		m_dictionary[index_tmp].m_name = stock.name;
-		m_dictionary[index_tmp].m_abbreviation = stock.abbreviation;
+		m_dictionary[index_tmp].m_indexStock = indexStock;
 	}
 	else {
-		addEntry(index, stock, qu_pr + 1);
+		addEntry(indexEntry, indexStock, stock, qu_pr + 1);
 	}
 }
 
 // file has to contain atleast 30 lines, every lines gets read and the last 30 get put into another vector
-void Hashtable::import(int index) {
+bool Hashtable::import(int index) {
 	std::fstream source;
 	source.open("./../import/" + m_table[index].abbreviation + ".csv");
+	if(!source.is_open()) {
+		return false;
+	}
 	short int line_count = 0;
 	std::string line;
 	std::vector<std::vector<std::string>> history_tmp;
@@ -69,8 +72,8 @@ void Hashtable::import(int index) {
 		Data data(history_tmp[i][0], std::stod(history_tmp[i][1]), std::stod(history_tmp[i][2]), std::stod(history_tmp[i][3]), std::stod(history_tmp[i][4]), std::stod(history_tmp[i][5]), std::stoull(history_tmp[i][6]));
 		m_table[index].history.emplace_back(data);
 	}
-
 	source.close();
+	return true;
 }
 
 // hashtable and dictionary get saved in save.csv (note that the entries are separated by semicolons, since some companies have "," in their name)
@@ -100,8 +103,8 @@ bool Hashtable::save() {
 		if(m_dictionary[i].m_deleted) {
 			destination << i << "\n"; // only index indicates deleted entry
 		}
-		else if(!m_dictionary[i].m_abbreviation.empty()) {
-			destination << i << "," << m_dictionary[i].m_abbreviation << "," << m_dictionary[i].m_name << "\n";
+		else if(!m_dictionary[i].m_name.empty()) {
+			destination << i << "," << m_dictionary[i].m_name << "," << m_dictionary[i].m_indexStock << "\n";
 		}
 		// rest is completely empty
 	}
@@ -155,7 +158,7 @@ bool Hashtable::load() {
 		else {
 			if(line_values.size() > 1) {
 				m_dictionary[index].m_name = line_values[1];
-				m_dictionary[index].m_abbreviation = line_values[2];
+				m_dictionary[index].m_indexStock = stoi(line_values[2]);
 			}
 			else {
 				m_dictionary[index].m_deleted = true;
@@ -211,7 +214,7 @@ void Hashtable::printStock(int index) {
 void::Hashtable::deleteStock(int index) {
 	int dic_index = hash(m_table[index].name);
 	searchEntry(dic_index, m_table[index].name, 0);
-	m_dictionary[dic_index].m_abbreviation.clear();
+	m_dictionary[dic_index].m_indexStock = -1;
 	m_dictionary[dic_index].m_name.clear();
 	m_dictionary[dic_index].m_deleted = true;
 	m_table[index].name.clear();
