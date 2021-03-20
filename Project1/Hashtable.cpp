@@ -95,6 +95,16 @@ bool Hashtable::save() {
 		}
 		// rest is completely empty
 	}
+	destination << "START_DICTIONARY\n";
+	for(int i = 0; i < 2003; ++i) {
+		if(m_dictionary[i].m_deleted) {
+			destination << i << "\n"; // only index indicates deleted entry
+		}
+		else if(!m_dictionary[i].m_abbreviation.empty()) {
+			destination << i << "," << m_dictionary[i].m_abbreviation << "," << m_dictionary[i].m_name << "\n";
+		}
+		// rest is completely empty
+	}
 
 	destination.close();
 	return true;
@@ -106,10 +116,13 @@ bool Hashtable::load() {
 	if(!source.is_open()) {
 		return false;
 	}
-	// clears complete table
+	// clear tables
 	delete[] m_table;
 	m_table = new Stock[2003];
+	delete[] m_dictionary;
+	m_dictionary = new Entry[2003];
 
+	bool dic_start = false;
 	std::string line;
 	while(std::getline(source, line)) {
 		std::string line_value;
@@ -118,72 +131,90 @@ bool Hashtable::load() {
 		while(std::getline(ss, line_value, ',')) {
 			line_values.push_back(line_value);
 		}
-		short int index = stoi(line_values[0]);
-		if(line_values.size() == 2) {
-			m_table[index].deleted = true;
+		if(line_values[0] == "START_DICTIONARY") {
+			dic_start = true;
 			continue;
 		}
-		m_table[index].filled = true;
-		m_table[index].name = line_values[1];
-		m_table[index].isin = stoi(line_values[2]);
-		m_table[index].abbreviation = line_values[3];
-		if(line_values.size() > 4) {
-			for(std::vector<std::string>::iterator it = std::next(line_values.begin(), 4); it != line_values.end(); it = it + 7) {
-				Data data(*it, std::stod(*(it + 1)), std::stod(*(it + 2)), std::stod(*(it + 3)), std::stod(*(it + 4)), std::stod(*(it + 5)), std::stoull(*(it + 6)));
-				m_table[index].history.emplace_back(data);
+		short int index = stoi(line_values[0]);
+		if(!dic_start) {
+			if(line_values.size() == 1) {
+				m_table[index].deleted = true;
+				continue;
+			}
+			m_table[index].filled = true;
+			m_table[index].name = line_values[1];
+			m_table[index].isin = stoi(line_values[2]);
+			m_table[index].abbreviation = line_values[3];
+			if(line_values.size() > 4) {
+				for(std::vector<std::string>::iterator it = std::next(line_values.begin(), 4); it != line_values.end(); it = it + 7) {
+					Data data(*it, std::stod(*(it + 1)), std::stod(*(it + 2)), std::stod(*(it + 3)), std::stod(*(it + 4)), std::stod(*(it + 5)), std::stoull(*(it + 6)));
+					m_table[index].history.emplace_back(data);
+				}
+			}
+		}
+		else {
+			if(line_values.size() > 1) {
+				m_dictionary[index].m_abbreviation = line_values[1];
+				m_dictionary[index].m_abbreviation = line_values[2];
+			}
+			else {
+				m_dictionary[index].m_deleted = true;
 			}
 		}
 	}
-
 	source.close();
 	return true;
 }
 
-int Hashtable::searchEntry(int indexEntry, std::string input, uint32_t qu_pr)
-{
-	//m_table[index].history[29].m_close;  
-	// einzeln auf elementne zur ausgabe aufrufen
-
+int Hashtable::searchEntry(int indexEntry, std::string input, uint32_t qu_pr) {
 	uint32_t index_tmp = (indexEntry + qu_pr * qu_pr) % 2003;
-	if ((m_dictionary[index_tmp].m_name != input && !m_dictionary[index_tmp].m_name.empty()) || m_dictionary[index_tmp].m_deleted) {
-		searchEntry(index_tmp, input, qu_pr);
+	if((m_dictionary[index_tmp].m_name != input && !m_dictionary[index_tmp].m_name.empty()) || m_dictionary[index_tmp].m_deleted) {
+		searchEntry(indexEntry, input, qu_pr + 1);
 	}
-	else if (m_dictionary[index_tmp].m_name != input) {
-		return -1;
+	else if (m_dictionary[index_tmp].m_name == input) {
+		return index_tmp;
 	}
-	return index_tmp;
+	return -1;
 };
 
-int Hashtable::searchStock(int indexStock, std::string input, uint32_t qu_pr)
-{
+int Hashtable::searchStock(int indexStock, std::string input, uint32_t qu_pr) {
 	uint32_t index_tmp = (indexStock + qu_pr * qu_pr) % 2003;
-	if ((m_table[index_tmp].abbreviation != input && !m_table[index_tmp].abbreviation.empty()) || m_table[index_tmp].deleted) {
-		searchStock(index_tmp, input, qu_pr);
+	if((m_table[index_tmp].abbreviation != input && !m_table[index_tmp].abbreviation.empty()) || m_table[index_tmp].deleted) {
+		searchStock(indexStock, input, qu_pr + 1);
 	}
-	else if (m_table[index_tmp].abbreviation != input) {
-		return -1;
+	else if (m_table[index_tmp].abbreviation == input) {
+		return index_tmp;
 	}
-	return index_tmp;
+	return -1;
 };
-void::Hashtable::del_stock(uint64_t index)
-{
+
+void::Hashtable::deleteStock(int index) {
+	int dic_index = hash(m_table[index].name);
+	dic_index = searchEntry(dic_index, m_table[index].name, 0);
+	m_dictionary[dic_index].m_abbreviation.clear();
+	m_dictionary[dic_index].m_name.clear();
+	m_dictionary[dic_index].m_deleted = true;
 	m_table[index].name.clear();
 	m_table[index].abbreviation.clear();
 	m_table[index].isin = 0;
 	m_table[index].filled = false;
 	m_table[index].deleted = true;
 	m_table[index].history.clear();
-
 	std::cout << "Stock has been deleted!" << std::endl;
 };
 
-void Hashtable::printstock(uint64_t index)
-{
-	std::cout << "Date: " << m_table[index].history[29].m_date << std::endl;
-	std::cout << "Open: " << m_table[index].history[29].m_open << std::endl;
-	std::cout << "High: " << m_table[index].history[29].m_high << std::endl;
-	std::cout << "Low: " << m_table[index].history[29].m_low << std::endl;
-	std::cout << "Close: " << m_table[index].history[29].m_close << std::endl;
-	std::cout << "Volume: " << m_table[index].history[29].m_volume << std::endl;
-	std::cout << "Adj_Close: " << m_table[index].history[29].m_adjclose << std::endl;
+void Hashtable::printStock(int index) {
+	std::cout << "Index: " << index << std::endl;
+	std::cout << "Name: " << m_table[index].name << std::endl;
+	std::cout << "ISIN: " << m_table[index].isin << std::endl;
+	std::cout << "Abbreviation: " << m_table[index].abbreviation << std::endl;
+	if(!m_table[index].history.empty()) {
+		std::cout << "Date: " << m_table[index].history[29].m_date << std::endl;
+		std::cout << "Open: " << m_table[index].history[29].m_open << std::endl;
+		std::cout << "High: " << m_table[index].history[29].m_high << std::endl;
+		std::cout << "Low: " << m_table[index].history[29].m_low << std::endl;
+		std::cout << "Close: " << m_table[index].history[29].m_close << std::endl;
+		std::cout << "Volume: " << m_table[index].history[29].m_volume << std::endl;
+		std::cout << "Adj_Close: " << m_table[index].history[29].m_adjclose << std::endl;
+	}
 };

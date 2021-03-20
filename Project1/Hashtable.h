@@ -46,7 +46,7 @@ public:
 	bool save();
 	bool load();
 	int searchEntry(int indexEntry, std::string input, uint32_t qu_pr);
-	int searchStock(int indexEntry, std::string input, uint32_t qu_pr);
-	void del_stock(uint64_t index);
-	void printstock(uint64_t index);
+	int searchStock(int indexStock, std::string input, uint32_t qu_pr);
+	void deleteStock(int index);
+	void printStock(int index);
 };

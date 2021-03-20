@@ -27,13 +27,13 @@ void Controller::run() {
 				add();
 				break;
 			case 2:
-				//del();
+				deleteStock();
 				break;
 			case 3:
 				import();
 				break;
 			case 4:
-				//search();
+				search();
 				break;
 			case 5:
 				plot();
@@ -72,30 +72,40 @@ void Controller::add() { // deleted gets set to false (constructor)
 
 int Controller::decision() {
 	short int type;
+	char tmp[41];
 	std::string input;
 	std::cout << "Abbreviation or Name [0 or 1]: ";
 	std::cin >> type;
 	if (type == 0) {
 		std::cout << "Abbreviation: ";
+		std::cin >> input;
 	}
 	else {
-		std::cout << "Name: ";
+		std::cout << "Name (max. 40 characters): ";
+		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // everything until newline gets discarded
+		std::cin.getline(tmp, 40);
+		input = tmp;
 	}
-	std::cin >> input;
 	if (type == 1) {
 		int indexEntry = m_hashtable.hash(input);
-		input = m_hashtable.m_dictionary[m_hashtable.searchEntry(indexEntry, input, 0)].m_abbreviation;
+		indexEntry = m_hashtable.searchEntry(indexEntry, input, 0); // update if value isn't correct
+		if(indexEntry == -1) {
+			return indexEntry; // returns -1 if not found
+		}
+		input = m_hashtable.m_dictionary[indexEntry].m_abbreviation;
 	}
-
 	int indexStock = m_hashtable.hash(input);
-	return m_hashtable.searchStock(indexStock, input, 0);
-
-	return 0;
+	return m_hashtable.searchStock(indexStock, input, 0); // returns -1 if not found
 }
 
 void Controller::import() {
 	int index = decision();
-	m_hashtable.import(999); // replace with index
+	if(index == -1) {
+		std::cout << "Stock not found!" << std::endl;
+	}
+	else {
+		m_hashtable.import(index);
+	}
 }
 
 void Controller::save() {
@@ -119,19 +129,31 @@ void Controller::load() {
 }
 
 void Controller::plot() {
-	int index = 999;
-
+	int index = decision();
+	if(index == -1) {
+		std::cout << "Stock not found!" << std::endl;
+	}
+	else {
+		//m_hashtable.plot(index);
+	}
 }
 
-void Controller::search()
-{
+void Controller::search() {
 	int index = decision();
-	m_hashtable.printstock(index);
-
+	if(index == -1) {
+		std::cout << "Stock not found!" << std::endl;
+	}
+	else {
+		m_hashtable.printStock(index);
+	}
 };
 
-void Controller::delete_stock()
-{
+void Controller::deleteStock() {
 	int index = decision();
-	m_hashtable.del_stock(index);
+	if(index == -1) {
+		std::cout << "Stock not found!" << std::endl;
+	}
+	else {
+		m_hashtable.deleteStock(index);
+	}
 }
