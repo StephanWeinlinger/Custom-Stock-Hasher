@@ -138,7 +138,7 @@ void Controller::plot() {
 		std::cout << "Stock not found!" << std::endl;
 	}
 	else {
-		//m_hashtable.plot(index);
+		m_hashtable.plot(index);
 	}
 }
 

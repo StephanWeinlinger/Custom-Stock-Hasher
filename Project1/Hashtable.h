@@ -49,4 +49,5 @@ public:
 	void searchStock(int& indexStock, std::string input, uint32_t qu_pr);
 	void deleteStock(int index);
 	void printStock(int index);
+	void plot(int index);
 };

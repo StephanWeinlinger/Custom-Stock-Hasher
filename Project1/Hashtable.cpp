@@ -211,7 +211,7 @@ void Hashtable::printStock(int index) {
 	}
 };
 
-void::Hashtable::deleteStock(int index) {
+void Hashtable::deleteStock(int index) {
 	int dic_index = hash(m_table[index].name);
 	searchEntry(dic_index, m_table[index].name, 0);
 	m_dictionary[dic_index].m_indexStock = -1;
@@ -225,3 +225,38 @@ void::Hashtable::deleteStock(int index) {
 	m_table[index].history.clear();
 	std::cout << "Stock has been deleted!" << std::endl;
 };
+
+void Hashtable::plot(int index) {
+	double sum = 0;
+	double low = m_table[index].history[0].m_close;
+	double high = m_table[index].history[0].m_close;
+	for(std::vector<Data>::iterator it = m_table[index].history.begin(); it != m_table[index].history.end(); ++it) {
+		sum += it->m_close;
+		if(it->m_close < low) {
+			low = it->m_close;
+		}
+		else if(it->m_close > high) {
+			high = it->m_close;
+		}
+	}
+	double difference = high - low;
+	std::cout << "--------------------------------------------------------------------------------------------\n";
+	for(double i = 14; i >= 0; --i) {
+		std::cout << "|";
+		for(std::vector<Data>::iterator it = m_table[index].history.begin(); it != m_table[index].history.end(); ++it) {
+			if(it->m_close > low + (difference / 15) * i && it->m_close <= low + (difference / 15) * (i + 1)) {
+				std::cout << " o ";
+			}
+			else if(i == 0 && it->m_close == low) { // otherwise it wouldn't be included
+				std::cout << " o ";
+			}
+			else {
+				std::cout << "   ";
+			}
+		}
+		std::cout << "|" << std::endl;
+	}
+	std::cout << "--------------------------------------------------------------------------------------------" << std::endl;
+	std::cout << "Low: " << low << std::endl;
+	std::cout << "High: " << high << std::endl;
+}
