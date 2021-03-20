@@ -154,7 +154,7 @@ bool Hashtable::load() {
 		}
 		else {
 			if(line_values.size() > 1) {
-				m_dictionary[index].m_abbreviation = line_values[1];
+				m_dictionary[index].m_name = line_values[1];
 				m_dictionary[index].m_abbreviation = line_values[2];
 			}
 			else {
@@ -166,41 +166,30 @@ bool Hashtable::load() {
 	return true;
 }
 
-int Hashtable::searchEntry(int indexEntry, std::string input, uint32_t qu_pr) {
+void Hashtable::searchEntry(int& indexEntry, std::string input, uint32_t qu_pr) {
 	uint32_t index_tmp = (indexEntry + qu_pr * qu_pr) % 2003;
 	if((m_dictionary[index_tmp].m_name != input && !m_dictionary[index_tmp].m_name.empty()) || m_dictionary[index_tmp].m_deleted) {
 		searchEntry(indexEntry, input, qu_pr + 1);
 	}
 	else if (m_dictionary[index_tmp].m_name == input) {
-		return index_tmp;
+		indexEntry = index_tmp;
 	}
-	return -1;
+	else {
+		indexEntry = -1;
+	}
 };
 
-int Hashtable::searchStock(int indexStock, std::string input, uint32_t qu_pr) {
+void Hashtable::searchStock(int& indexStock, std::string input, uint32_t qu_pr) {
 	uint32_t index_tmp = (indexStock + qu_pr * qu_pr) % 2003;
 	if((m_table[index_tmp].abbreviation != input && !m_table[index_tmp].abbreviation.empty()) || m_table[index_tmp].deleted) {
 		searchStock(indexStock, input, qu_pr + 1);
 	}
 	else if (m_table[index_tmp].abbreviation == input) {
-		return index_tmp;
+		indexStock = index_tmp;
 	}
-	return -1;
-};
-
-void::Hashtable::deleteStock(int index) {
-	int dic_index = hash(m_table[index].name);
-	dic_index = searchEntry(dic_index, m_table[index].name, 0);
-	m_dictionary[dic_index].m_abbreviation.clear();
-	m_dictionary[dic_index].m_name.clear();
-	m_dictionary[dic_index].m_deleted = true;
-	m_table[index].name.clear();
-	m_table[index].abbreviation.clear();
-	m_table[index].isin = 0;
-	m_table[index].filled = false;
-	m_table[index].deleted = true;
-	m_table[index].history.clear();
-	std::cout << "Stock has been deleted!" << std::endl;
+	else {
+		indexStock = -1;
+	}
 };
 
 void Hashtable::printStock(int index) {
@@ -217,4 +206,19 @@ void Hashtable::printStock(int index) {
 		std::cout << "Volume: " << m_table[index].history[29].m_volume << std::endl;
 		std::cout << "Adj_Close: " << m_table[index].history[29].m_adjclose << std::endl;
 	}
+};
+
+void::Hashtable::deleteStock(int index) {
+	int dic_index = hash(m_table[index].name);
+	searchEntry(dic_index, m_table[index].name, 0);
+	m_dictionary[dic_index].m_abbreviation.clear();
+	m_dictionary[dic_index].m_name.clear();
+	m_dictionary[dic_index].m_deleted = true;
+	m_table[index].name.clear();
+	m_table[index].abbreviation.clear();
+	m_table[index].isin = 0;
+	m_table[index].filled = false;
+	m_table[index].deleted = true;
+	m_table[index].history.clear();
+	std::cout << "Stock has been deleted!" << std::endl;
 };

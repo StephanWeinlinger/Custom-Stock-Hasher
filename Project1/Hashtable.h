@@ -45,8 +45,8 @@ public:
 	void import(int index);
 	bool save();
 	bool load();
-	int searchEntry(int indexEntry, std::string input, uint32_t qu_pr);
-	int searchStock(int indexStock, std::string input, uint32_t qu_pr);
+	void searchEntry(int& indexEntry, std::string input, uint32_t qu_pr);
+	void searchStock(int& indexStock, std::string input, uint32_t qu_pr);
 	void deleteStock(int index);
 	void printStock(int index);
 };

@@ -88,14 +88,15 @@ int Controller::decision() {
 	}
 	if (type == 1) {
 		int indexEntry = m_hashtable.hash(input);
-		indexEntry = m_hashtable.searchEntry(indexEntry, input, 0); // update if value isn't correct
+		m_hashtable.searchEntry(indexEntry, input, 0); // update if value isn't correct
 		if(indexEntry == -1) {
 			return indexEntry; // returns -1 if not found
 		}
 		input = m_hashtable.m_dictionary[indexEntry].m_abbreviation;
 	}
 	int indexStock = m_hashtable.hash(input);
-	return m_hashtable.searchStock(indexStock, input, 0); // returns -1 if not found
+	m_hashtable.searchStock(indexStock, input, 0); // returns -1 if not found
+	return indexStock;
 }
 
 void Controller::import() {
