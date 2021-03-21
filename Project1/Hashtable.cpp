@@ -88,7 +88,7 @@ bool Hashtable::import(uint32_t index) {
 		history_tmp.emplace_back(line_values);
 		line_count++;
 	}
-	if(line_count < 30) {
+	if(line_count < 31) {
 		return false;
 	}
 	m_table[index].history.clear(); // overwrite existing data

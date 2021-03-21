@@ -124,7 +124,7 @@ void Controller::import() {
 		std::cout << "Stock data imported!" << std::endl;
 	}
 	else {
-		std::cout << "Error: Couldn't import stock data (maybe file is opened, not existent or contains less than 30 lines)" << std::endl;
+		std::cout << "Error: Couldn't import stock data (maybe file is opened, not existent or contains less than 30 entries)" << std::endl;
 	}
 }
 
