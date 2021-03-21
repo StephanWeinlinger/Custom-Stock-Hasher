@@ -8,6 +8,7 @@
 Hashtable::Hashtable() {
 	m_table = new Stock[2003];
 	m_dictionary = new Entry[2003];
+	m_amount = 0;
 }
 
 Hashtable::~Hashtable() {
@@ -23,19 +24,34 @@ int Hashtable::hash(std::string abbreviation) {
 	return value % 2003;
 }
 
-void Hashtable::addStock(uint32_t index, Stock stock, uint32_t qu_pr) {
-	uint32_t index_tmp = (index + qu_pr * qu_pr) % 2003;
-	if(!m_table[index_tmp].filled) { // if not filled
+void Hashtable::addStock(uint32_t& indexStock, Stock stock, uint32_t qu_pr) {
+	uint32_t index_tmp = (indexStock + qu_pr * qu_pr) % 2003;
+	if(m_table[index_tmp].abbreviation == stock.abbreviation) {
+		indexStock = -1;
+	}
+	else if(!m_table[index_tmp].filled) { // if not filled
 		m_table[index_tmp] = stock;
+		indexStock = index_tmp;
+		m_amount++;
 	}
 	else {
-		addStock(index, stock, qu_pr + 1);
+		addStock(indexStock, stock, qu_pr + 1);
 	}
 }
 
 void Hashtable::addEntry(uint32_t indexEntry, uint32_t indexStock, Stock stock, uint32_t qu_pr) {
 	uint32_t index_tmp = (indexEntry + qu_pr * qu_pr) % 2003;
-	if(m_dictionary[index_tmp].m_name == "") {
+	if(m_dictionary[index_tmp].m_name == stock.name) { // if same name, stock in m_table has to be deleted (note that deleted is set to false)
+		m_table[indexStock].name.clear();
+		m_table[indexStock].abbreviation.clear();
+		m_table[indexStock].isin = 0;
+		m_table[indexStock].filled = false;
+		m_table[indexStock].deleted = false;
+		m_table[indexStock].history.clear();
+		m_amount--;
+		std::cout << "Stock with same name already exists!" << std::endl;
+	}
+	else if(m_dictionary[index_tmp].m_name == "") {
 		m_dictionary[index_tmp].m_deleted = false;
 		m_dictionary[index_tmp].m_name = stock.name;
 		m_dictionary[index_tmp].m_indexStock = indexStock;
@@ -66,7 +82,6 @@ bool Hashtable::import(int index) {
 		line_count++;
 	}
 
-	// absolutely horrendous, but it works
 	m_table[index].history.clear(); // if new import happens
 	for(int i = line_count - 30; i < line_count; ++i) {
 		Data data(history_tmp[i][0], std::stod(history_tmp[i][1]), std::stod(history_tmp[i][2]), std::stod(history_tmp[i][3]), std::stod(history_tmp[i][4]), std::stod(history_tmp[i][5]), std::stoull(history_tmp[i][6]));
@@ -124,6 +139,7 @@ bool Hashtable::load() {
 	m_table = new Stock[2003];
 	delete[] m_dictionary;
 	m_dictionary = new Entry[2003];
+	m_amount = 0;
 
 	bool dic_start = false;
 	std::string line;
@@ -154,6 +170,7 @@ bool Hashtable::load() {
 					m_table[index].history.emplace_back(data);
 				}
 			}
+			m_amount++;
 		}
 		else {
 			if(line_values.size() > 1) {
@@ -222,6 +239,7 @@ void Hashtable::deleteStock(int index) {
 	m_table[index].filled = false;
 	m_table[index].deleted = true;
 	m_table[index].history.clear();
+	m_amount--;
 	std::cout << "Stock has been deleted!" << std::endl;
 };
 
@@ -239,7 +257,7 @@ void Hashtable::plot(int index) {
 		}
 	}
 	double difference = high - low;
-	std::cout << "--------------------------------------------------------------------------------------------\n";
+	std::cout << "--------------------------------------------------------------------------------------------" << std::endl;
 	for(double i = 14; i >= 0; --i) {
 		std::cout << "|";
 		for(std::vector<Data>::iterator it = m_table[index].history.begin(); it != m_table[index].history.end(); ++it) {

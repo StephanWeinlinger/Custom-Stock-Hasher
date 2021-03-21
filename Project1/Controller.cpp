@@ -52,21 +52,31 @@ void Controller::run() {
 }
 
 void Controller::add() { // deleted gets set to false (constructor)
-	Stock stock;
-	char tmp[41];
-	std::cout << "Name (max. 40 characters): ";
-	std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // everything until newline gets discarded
-	std::cin.getline(tmp, 40);
-	stock.name = tmp;
-	std::cout << "ISIN: ";
-	std::cin >> stock.isin;
-	std::cout << "Abbreviation: ";
-	std::cin >> stock.abbreviation;
-	stock.filled = true;
-	int indexStock = m_hashtable.hash(stock.abbreviation);
-	int indexEntry = m_hashtable.hash(stock.name);
-	m_hashtable.addStock(indexStock, stock, 0);
-	m_hashtable.addEntry(indexEntry, indexStock, stock, 0);
+	if(m_hashtable.m_amount <= 1001) {
+		Stock stock;
+		char tmp[41];
+		std::cout << "Name (max. 40 characters): ";
+		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // everything until newline gets discarded
+		std::cin.getline(tmp, 40);
+		stock.name = tmp;
+		std::cout << "ISIN: ";
+		std::cin >> stock.isin;
+		std::cout << "Abbreviation: ";
+		std::cin >> stock.abbreviation;
+		stock.filled = true;
+		uint32_t indexStock = m_hashtable.hash(stock.abbreviation);
+		uint32_t indexEntry = m_hashtable.hash(stock.name);
+		m_hashtable.addStock(indexStock, stock, 0);
+		if(indexStock != -1) {
+			m_hashtable.addEntry(indexEntry, indexStock, stock, 0);
+		}
+		else {
+			std::cout << "Stock with same abbreviation aready exists!" << std::endl;
+		}
+	}
+	else {
+		std::cout << "Hashtable is full!" << std::endl;
+	}
 }
 
 int Controller::decision() {

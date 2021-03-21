@@ -38,9 +38,10 @@ public:
 	Hashtable();
 	~Hashtable();
 	Stock* m_table; // atleast 2000, 2003 is first prime number over 2000
-	Entry* m_dictionary; 
+	Entry* m_dictionary;
+	short int m_amount;
 	int hash(std::string abbreviation);
-	void addStock(uint32_t index, Stock stock, uint32_t qu_pr);
+	void addStock(uint32_t& indexStock, Stock stock, uint32_t qu_pr);
 	void addEntry(uint32_t indexStock, uint32_t indexEntry, Stock stock, uint32_t qu_pr);
 	bool import(int index);
 	bool save();
