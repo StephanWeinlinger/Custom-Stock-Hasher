@@ -156,6 +156,9 @@ void Controller::plot() {
 	if(index == -1) {
 		std::cout << "Stock not found!" << std::endl;
 	}
+	else if(m_hashtable.m_table[index].history.empty()) {
+		std::cout << "Stock doesn't have data!" << std::endl;
+	}
 	else {
 		m_hashtable.plot(index);
 	}
