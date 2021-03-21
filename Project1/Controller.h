@@ -6,11 +6,10 @@ public:
 	Controller();
 private:
 	Hashtable m_hashtable;
-	bool m_quit;
 	void run();
 	void printMenu();
 	void add();
-	int decision();
+	uint32_t decision();
 	void import();
 	void save();
 	void load();

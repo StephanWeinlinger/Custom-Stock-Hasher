@@ -16,14 +16,17 @@ Hashtable::~Hashtable() {
 	delete[] m_dictionary;
 }
 
-int Hashtable::hash(std::string abbreviation) {
+// returns hash value for given string
+uint32_t Hashtable::hash(std::string input) {
 	uint64_t value = 1;
-	for(int i = 0; i < (int)abbreviation.length(); ++i) {
-		value *= (int)abbreviation[i];
+	for(int i = 0; i < (int) input.length(); ++i) {
+		value *= (int) input[i];
 	}
 	return value % 2003;
 }
 
+// searches for free index and if abbreviation is already in use
+// adds stock at index
 void Hashtable::addStock(uint32_t& indexStock, Stock stock, uint32_t qu_pr) {
 	uint32_t index_tmp = (indexStock + qu_pr * qu_pr) % 2003;
 	if(m_table[index_tmp].abbreviation == stock.abbreviation) {
@@ -39,6 +42,9 @@ void Hashtable::addStock(uint32_t& indexStock, Stock stock, uint32_t qu_pr) {
 	}
 }
 
+// searches for free index and if name is already in use
+// adds entry at index
+// if name is already in use it clears the entry in the hashtable
 void Hashtable::addEntry(uint32_t indexEntry, uint32_t indexStock, Stock stock, uint32_t qu_pr) {
 	uint32_t index_tmp = (indexEntry + qu_pr * qu_pr) % 2003;
 	if(m_dictionary[index_tmp].m_name == stock.name) { // if same name, stock in m_table has to be deleted (note that deleted is set to false)
@@ -61,8 +67,9 @@ void Hashtable::addEntry(uint32_t indexEntry, uint32_t indexStock, Stock stock, 
 	}
 }
 
-// file has to contain atleast 30 lines, every lines gets read and the last 30 get put into another vector
-bool Hashtable::import(int index) {
+// imports stock data from ABBREVIATION.csv file
+// csv file has to contain atleast 30 lines, otherwise error message will be displayed
+bool Hashtable::import(uint32_t index) {
 	std::fstream source;
 	source.open("./../import/" + m_table[index].abbreviation + ".csv");
 	if(!source.is_open()) {
@@ -81,9 +88,11 @@ bool Hashtable::import(int index) {
 		history_tmp.emplace_back(line_values);
 		line_count++;
 	}
-
-	m_table[index].history.clear(); // if new import happens
-	for(int i = line_count - 30; i < line_count; ++i) {
+	if(line_count < 30) {
+		return false;
+	}
+	m_table[index].history.clear(); // overwrite existing data
+	for(int i = line_count - 30; i < line_count; ++i) { // fill actual history with last 30 entries
 		Data data(history_tmp[i][0], std::stod(history_tmp[i][1]), std::stod(history_tmp[i][2]), std::stod(history_tmp[i][3]), std::stod(history_tmp[i][4]), std::stod(history_tmp[i][5]), std::stoull(history_tmp[i][6]));
 		m_table[index].history.emplace_back(data);
 	}
@@ -91,13 +100,12 @@ bool Hashtable::import(int index) {
 	return true;
 }
 
-// hashtable and dictionary get saved in save.csv (note that the entries are separated by semicolons, since some companies have "," in their name)
+// saves hashtable and dicionary in a file called save.csv
 bool Hashtable::save() {
 	std::ofstream destination("./../save/save.csv", std::ios::trunc);
 	if(!destination.is_open()) {
 		return false;
 	}
-
 	for(int i = 0; i < 2003; ++i) {
 		if(m_table[i].deleted) {
 			destination << i << "\n"; // only index indicates deleted stock
@@ -123,25 +131,25 @@ bool Hashtable::save() {
 		}
 		// rest is completely empty
 	}
-
 	destination.close();
 	return true;
 }
 
+// loads hashtable and dictionary from a file called save.csv
 bool Hashtable::load() {
 	std::fstream source;
 	source.open("./../save/save.csv");
 	if(!source.is_open()) {
 		return false;
 	}
-	// clear tables
+	// clear tables and reset amount
 	delete[] m_table;
 	m_table = new Stock[2003];
 	delete[] m_dictionary;
 	m_dictionary = new Entry[2003];
 	m_amount = 0;
 
-	bool dic_start = false;
+	bool dic_start = false; // gets set to true if start of dictionary is detected
 	std::string line;
 	while(std::getline(source, line)) {
 		std::string line_value;
@@ -150,7 +158,7 @@ bool Hashtable::load() {
 		while(std::getline(ss, line_value, ',')) {
 			line_values.push_back(line_value);
 		}
-		if(line_values[0] == "START_DICTIONARY") {
+		if(line_values[0] == "START_DICTIONARY") { // check if dictionary starts
 			dic_start = true;
 			continue;
 		}
@@ -186,7 +194,9 @@ bool Hashtable::load() {
 	return true;
 }
 
-void Hashtable::searchEntry(int& indexEntry, std::string input, uint32_t qu_pr) {
+// searches for entry by given name and sets new indexEntry
+// if not found indexEntry gets set to -1
+void Hashtable::searchEntry(uint32_t& indexEntry, std::string input, uint32_t qu_pr) {
 	uint32_t index_tmp = (indexEntry + qu_pr * qu_pr) % 2003;
 	if((m_dictionary[index_tmp].m_name != input && !m_dictionary[index_tmp].m_name.empty()) || m_dictionary[index_tmp].m_deleted) {
 		searchEntry(indexEntry, input, qu_pr + 1);
@@ -199,7 +209,9 @@ void Hashtable::searchEntry(int& indexEntry, std::string input, uint32_t qu_pr) 
 	}
 };
 
-void Hashtable::searchStock(int& indexStock, std::string input, uint32_t qu_pr) {
+// searches for stock by given abbreviation and sets new indexStock
+// if not found indexStock gets set to -1
+void Hashtable::searchStock(uint32_t& indexStock, std::string input, uint32_t qu_pr) {
 	uint32_t index_tmp = (indexStock + qu_pr * qu_pr) % 2003;
 	if((m_table[index_tmp].abbreviation != input && !m_table[index_tmp].abbreviation.empty()) || m_table[index_tmp].deleted) {
 		searchStock(indexStock, input, qu_pr + 1);
@@ -212,7 +224,8 @@ void Hashtable::searchStock(int& indexStock, std::string input, uint32_t qu_pr) 
 	}
 };
 
-void Hashtable::printStock(int index) {
+// prints stock data
+void Hashtable::printStock(uint32_t index) {
 	std::cout << "Name: " << m_table[index].name << std::endl;
 	std::cout << "ISIN: " << m_table[index].isin << std::endl;
 	std::cout << "Abbreviation: " << m_table[index].abbreviation << std::endl;
@@ -227,8 +240,10 @@ void Hashtable::printStock(int index) {
 	}
 };
 
-void Hashtable::deleteStock(int index) {
-	int dic_index = hash(m_table[index].name);
+// searches for dictionary entry and deletes it and the stock
+// deleted gets set to true
+void Hashtable::deleteStock(uint32_t index) {
+	uint32_t dic_index = hash(m_table[index].name);
 	searchEntry(dic_index, m_table[index].name, 0);
 	m_dictionary[dic_index].m_indexStock = -1;
 	m_dictionary[dic_index].m_name.clear();
@@ -243,7 +258,8 @@ void Hashtable::deleteStock(int index) {
 	std::cout << "Stock has been deleted!" << std::endl;
 };
 
-void Hashtable::plot(int index) {
+// plots data of given stock
+void Hashtable::plot(uint32_t index) {
 	double sum = 0;
 	double low = m_table[index].history[0].m_close;
 	double high = m_table[index].history[0].m_close;

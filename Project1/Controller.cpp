@@ -1,8 +1,7 @@
 #include <iostream>
 #include "Controller.h"
 
-Controller::Controller()
-	: m_quit(false) {
+Controller::Controller() {
 	run();
 }
 
@@ -17,8 +16,10 @@ void Controller::printMenu() {
 	std::cout << "[8] QUIT" << std::endl;
 }
 
+// main menu loop
 void Controller::run() {
-	while(!m_quit) {
+	bool quit = false;
+	while(!quit) {
 		printMenu();
 		short int input;
 		std::cin >> input;
@@ -45,14 +46,17 @@ void Controller::run() {
 				load();
 				break;
 			case 8:
-				m_quit = true;
+				quit = true;
 				break;
 		}
 	}
 }
 
-void Controller::add() { // deleted gets set to false (constructor)
-	if(m_hashtable.m_amount <= 1001) {
+// adds new stock to hashtable and new entry to dictionary
+// if fill grade of hashtable would exceed 50% it stops the insertion
+// if name or abbreviation is already existent it stops the insertion
+void Controller::add() {
+	if(m_hashtable.m_amount < 1001) {
 		Stock stock;
 		char tmp[41];
 		std::cout << "Name (max. 40 characters): ";
@@ -66,7 +70,7 @@ void Controller::add() { // deleted gets set to false (constructor)
 		stock.filled = true;
 		uint32_t indexStock = m_hashtable.hash(stock.abbreviation);
 		uint32_t indexEntry = m_hashtable.hash(stock.name);
-		m_hashtable.addStock(indexStock, stock, 0);
+		m_hashtable.addStock(indexStock, stock, 0); // sets indexStock to actual index (if probing happens) or to -1 if abbreviation is already used
 		if(indexStock != -1) {
 			m_hashtable.addEntry(indexEntry, indexStock, stock, 0);
 		}
@@ -79,7 +83,9 @@ void Controller::add() { // deleted gets set to false (constructor)
 	}
 }
 
-int Controller::decision() {
+// returns index of stock or -1 if stock wasn't found
+// user can decide between searching by name or abbreviation
+uint32_t Controller::decision() {
 	short int type;
 	char tmp[41];
 	std::string input;
@@ -96,20 +102,21 @@ int Controller::decision() {
 		input = tmp;
 	}
 	if (type == 1) {
-		int indexEntry = m_hashtable.hash(input);
-		m_hashtable.searchEntry(indexEntry, input, 0); // update if value isn't correct
+		uint32_t indexEntry = m_hashtable.hash(input);
+		m_hashtable.searchEntry(indexEntry, input, 0); // sets indexEntry to actual value (if probing happens) or to -1 if name not found
 		if(indexEntry == -1) {
 			return indexEntry; // returns -1 if not found
 		}
-		return m_hashtable.m_dictionary[indexEntry].m_indexStock;
+		return m_hashtable.m_dictionary[indexEntry].m_indexStock; // returns index in hashtable
 	}
-	int indexStock = m_hashtable.hash(input);
-	m_hashtable.searchStock(indexStock, input, 0); // returns -1 if not found
+	uint32_t indexStock = m_hashtable.hash(input);
+	m_hashtable.searchStock(indexStock, input, 0); // sets indexStock to actual value (if probing happens) or to -1 if name not found
 	return indexStock;
 }
 
+// handles import
 void Controller::import() {
-	int index = decision();
+	uint32_t index = decision();
 	if(index == -1) {
 		std::cout << "Stock not found!" << std::endl;
 	}
@@ -117,10 +124,11 @@ void Controller::import() {
 		std::cout << "Stock data imported!" << std::endl;
 	}
 	else {
-		std::cout << "Error: Couldn't import stock data (maybe file is opened or not existent)" << std::endl;
+		std::cout << "Error: Couldn't import stock data (maybe file is opened, not existent or contains less than 30 lines)" << std::endl;
 	}
 }
 
+// handles saving
 void Controller::save() {
 	std::cout << "Saving in process..." << std::endl;
 	if(m_hashtable.save()) {
@@ -131,6 +139,7 @@ void Controller::save() {
 	}
 }
 
+// handles loading
 void Controller::load() {
 	std::cout << "Loading in process..." << std::endl;
 	if(m_hashtable.load()) {
@@ -141,8 +150,9 @@ void Controller::load() {
 	}
 }
 
+// handles plotting
 void Controller::plot() {
-	int index = decision();
+	uint32_t index = decision();
 	if(index == -1) {
 		std::cout << "Stock not found!" << std::endl;
 	}
@@ -151,8 +161,9 @@ void Controller::plot() {
 	}
 }
 
+// handles searching
 void Controller::search() {
-	int index = decision();
+	uint32_t index = decision();
 	if(index == -1) {
 		std::cout << "Stock not found!" << std::endl;
 	}
@@ -161,8 +172,9 @@ void Controller::search() {
 	}
 };
 
+// handles deleting
 void Controller::deleteStock() {
-	int index = decision();
+	uint32_t index = decision();
 	if(index == -1) {
 		std::cout << "Stock not found!" << std::endl;
 	}

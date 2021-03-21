@@ -3,8 +3,8 @@
 #include <vector>
 
 typedef struct Entry {
-	Entry() // only used for initial allocation
-	: m_deleted(false), m_indexStock(-1) {}
+	Entry()
+		: m_deleted(false), m_indexStock(-1) {}
 	bool m_deleted;
 	std::string m_name;
 	int m_indexStock;
@@ -19,7 +19,7 @@ typedef struct Data {
 	double m_low;
 	double m_close;
 	double m_adjclose;
-	unsigned long long int m_volume; // could be reduced, is pretty big
+	unsigned long long int m_volume;
 } Data;
 
 typedef struct Stock {
@@ -40,15 +40,15 @@ public:
 	Stock* m_table; // atleast 2000, 2003 is first prime number over 2000
 	Entry* m_dictionary;
 	short int m_amount;
-	int hash(std::string abbreviation);
+	uint32_t hash(std::string abbreviation);
 	void addStock(uint32_t& indexStock, Stock stock, uint32_t qu_pr);
 	void addEntry(uint32_t indexStock, uint32_t indexEntry, Stock stock, uint32_t qu_pr);
-	bool import(int index);
+	bool import(uint32_t index);
 	bool save();
 	bool load();
-	void searchEntry(int& indexEntry, std::string input, uint32_t qu_pr);
-	void searchStock(int& indexStock, std::string input, uint32_t qu_pr);
-	void deleteStock(int index);
-	void printStock(int index);
-	void plot(int index);
+	void searchEntry(uint32_t& indexEntry, std::string input, uint32_t qu_pr);
+	void searchStock(uint32_t& indexStock, std::string input, uint32_t qu_pr);
+	void deleteStock(uint32_t index);
+	void printStock(uint32_t index);
+	void plot(uint32_t index);
 };
